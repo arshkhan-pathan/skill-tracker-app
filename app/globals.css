@@ -261,3 +261,10 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Ensure content is readable over video background */
+@layer components {
+  .card, [class*="card-"], [class*="popover-"], [class*="dialog-"] {
+    @apply backdrop-blur-sm bg-card/95;
+  }
+}

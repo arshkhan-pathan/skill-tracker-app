@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { useSkillStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,13 +18,13 @@ const sampleSkills = [
     tags: ['javascript', 'typescript', 'web'],
     milestones: [
       {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         title: 'Complete basic types tutorial',
         description: 'Learn primitive types, interfaces, and type aliases',
         completed: true,
       },
       {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         title: 'Build a TypeScript project',
         description: 'Create a real-world application using TypeScript',
         completed: false,
@@ -31,7 +32,7 @@ const sampleSkills = [
     ],
     resources: [
       {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         title: 'TypeScript Official Documentation',
         url: 'https://www.typescriptlang.org/docs/',
         type: 'article' as const,
@@ -48,13 +49,13 @@ const sampleSkills = [
     tags: ['react', 'hooks', 'frontend'],
     milestones: [
       {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         title: 'Learn useState and useEffect',
         description: 'Master the fundamental React hooks',
         completed: true,
       },
       {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         title: 'Create custom hooks',
         description: 'Build reusable custom hooks for common patterns',
         completed: true,
@@ -73,7 +74,7 @@ const sampleSkills = [
     tags: ['python', 'ml', 'ai', 'data-science'],
     milestones: [
       {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         title: 'Complete ML basics course',
         description: 'Understand fundamental ML concepts',
         completed: false,
@@ -92,7 +93,7 @@ const sampleSkills = [
     milestones: [],
     resources: [
       {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         title: 'Docker Getting Started',
         url: 'https://docs.docker.com/get-started/',
         type: 'article' as const,
@@ -120,13 +121,13 @@ const sampleSkills = [
     tags: ['git', 'version-control', 'collaboration'],
     milestones: [
       {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         title: 'Learn Git basics',
         description: 'Commit, push, pull, and branch',
         completed: true,
       },
       {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         title: 'Master rebasing and merging',
         description: 'Handle complex merge scenarios',
         completed: true,

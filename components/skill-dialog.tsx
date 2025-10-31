@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { useSkillStore } from '@/lib/store';
 import { Skill, Milestone, Resource, Todo } from '@/lib/types';
 import {
@@ -43,7 +44,6 @@ export function SkillDialog({ open, onOpenChange, skill }: SkillDialogProps) {
     addTodo,
     toggleTodo,
     deleteTodo,
-    updateTodo,
   } = useSkillStore();
 
   const [formData, setFormData] = useState({
@@ -125,7 +125,7 @@ export function SkillDialog({ open, onOpenChange, skill }: SkillDialogProps) {
   const addMilestone = () => {
     if (milestoneInput.title.trim()) {
       const newMilestone: Milestone = {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         title: milestoneInput.title,
         description: milestoneInput.description,
         completed: false,
@@ -153,7 +153,7 @@ export function SkillDialog({ open, onOpenChange, skill }: SkillDialogProps) {
   const addResource = () => {
     if (resourceInput.title.trim() && resourceInput.url.trim()) {
       const newResource: Resource = {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         title: resourceInput.title,
         url: resourceInput.url,
         type: resourceInput.type,
@@ -169,22 +169,31 @@ export function SkillDialog({ open, onOpenChange, skill }: SkillDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
         <DialogHeader>
-          <DialogTitle>{skill ? 'Edit Skill' : 'Add New Skill'}</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg sm:text-xl">{skill ? 'Edit Skill' : 'Add New Skill'}</DialogTitle>
+          <DialogDescription className="text-sm">
             {skill ? 'Update your skill details and track your progress' : 'Define a new skill to learn and track your journey'}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit}>
           <Tabs defaultValue="basic" className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="basic">Basic</TabsTrigger>
-              <TabsTrigger value="todos">Todos</TabsTrigger>
-              <TabsTrigger value="milestones">Milestones</TabsTrigger>
-              <TabsTrigger value="resources">Resources</TabsTrigger>
-              <TabsTrigger value="progress">Progress</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-5 h-auto">
+              <TabsTrigger value="basic" className="text-xs sm:text-sm px-1 sm:px-3">Basic</TabsTrigger>
+              <TabsTrigger value="todos" className="text-xs sm:text-sm px-1 sm:px-3">Todos</TabsTrigger>
+              <TabsTrigger value="milestones" className="text-xs sm:text-sm px-1 sm:px-3">
+                <span className="hidden sm:inline">Milestones</span>
+                <span className="sm:hidden">Miles</span>
+              </TabsTrigger>
+              <TabsTrigger value="resources" className="text-xs sm:text-sm px-1 sm:px-3">
+                <span className="hidden sm:inline">Resources</span>
+                <span className="sm:hidden">Res</span>
+              </TabsTrigger>
+              <TabsTrigger value="progress" className="text-xs sm:text-sm px-1 sm:px-3">
+                <span className="hidden sm:inline">Progress</span>
+                <span className="sm:hidden">Prog</span>
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="basic" className="space-y-4">
@@ -209,7 +218,7 @@ export function SkillDialog({ open, onOpenChange, skill }: SkillDialogProps) {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="category">Category *</Label>
                   <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
@@ -321,7 +330,7 @@ export function SkillDialog({ open, onOpenChange, skill }: SkillDialogProps) {
                         }
                       }}
                     />
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <Select
                         value={todoInput.priority}
                         onValueChange={(value) => setTodoInput({ ...todoInput, priority: value as Todo['priority'] })}
@@ -597,31 +606,31 @@ export function SkillDialog({ open, onOpenChange, skill }: SkillDialogProps) {
             <TabsContent value="progress" className="space-y-4">
               {skill ? (
                 <>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="p-4 border rounded-lg bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/30 dark:to-orange-900/20 dark:border-orange-900/30">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                    <div className="p-3 sm:p-4 border rounded-lg bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/30 dark:to-orange-900/20 dark:border-orange-900/30">
                       <div className="flex items-center gap-2 mb-1">
-                        <Flame className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-                        <span className="text-sm font-medium text-orange-900 dark:text-orange-300">Current Streak</span>
+                        <Flame className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600 dark:text-orange-400" />
+                        <span className="text-xs sm:text-sm font-medium text-orange-900 dark:text-orange-300">Current Streak</span>
                       </div>
-                      <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">{getStreak(skill.id)}</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-orange-600 dark:text-orange-400">{getStreak(skill.id)}</p>
                       <p className="text-xs text-orange-700 dark:text-orange-500 mt-1">days in a row</p>
                     </div>
 
-                    <div className="p-4 border rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20 dark:border-blue-900/30">
+                    <div className="p-3 sm:p-4 border rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20 dark:border-blue-900/30">
                       <div className="flex items-center gap-2 mb-1">
-                        <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        <span className="text-sm font-medium text-blue-900 dark:text-blue-300">Total Days</span>
+                        <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400" />
+                        <span className="text-xs sm:text-sm font-medium text-blue-900 dark:text-blue-300">Total Days</span>
                       </div>
-                      <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{getTotalPracticeDays(skill.id)}</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">{getTotalPracticeDays(skill.id)}</p>
                       <p className="text-xs text-blue-700 dark:text-blue-500 mt-1">days practiced</p>
                     </div>
 
-                    <div className="p-4 border rounded-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/30 dark:to-green-900/20 dark:border-green-900/30">
+                    <div className="p-3 sm:p-4 border rounded-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/30 dark:to-green-900/20 dark:border-green-900/30">
                       <div className="flex items-center gap-2 mb-1">
-                        <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
-                        <span className="text-sm font-medium text-green-900 dark:text-green-300">This Week</span>
+                        <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400" />
+                        <span className="text-xs sm:text-sm font-medium text-green-900 dark:text-green-300">This Week</span>
                       </div>
-                      <p className="text-3xl font-bold text-green-600 dark:text-green-400">
+                      <p className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">
                         {(() => {
                           if (!skill.dailyProgress) return 0;
                           const today = new Date();
@@ -639,8 +648,8 @@ export function SkillDialog({ open, onOpenChange, skill }: SkillDialogProps) {
 
                   <div className="space-y-2">
                     <Label>Recent Activity (Last 30 Days)</Label>
-                    <div className="border rounded-lg p-4">
-                      <div className="grid grid-cols-7 gap-1.5">
+                    <div className="border rounded-lg p-2 sm:p-4">
+                      <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
                         {(() => {
                           const days = [];
                           const today = new Date();
@@ -655,7 +664,7 @@ export function SkillDialog({ open, onOpenChange, skill }: SkillDialogProps) {
                             days.push(
                               <div key={dateStr} className="flex flex-col items-center">
                                 <div
-                                  className={`w-8 h-8 rounded-md flex items-center justify-center text-xs transition-colors ${
+                                  className={`w-6 h-6 sm:w-8 sm:h-8 rounded-md flex items-center justify-center text-[10px] sm:text-xs transition-colors ${
                                     practiced
                                       ? 'bg-green-500 dark:bg-green-600 text-white font-medium'
                                       : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600'
@@ -665,7 +674,7 @@ export function SkillDialog({ open, onOpenChange, skill }: SkillDialogProps) {
                                   {dayOfMonth}
                                 </div>
                                 {i % 7 === 6 && (
-                                  <span className="text-[10px] text-muted-foreground mt-0.5">{dayOfWeek}</span>
+                                  <span className="text-[8px] sm:text-[10px] text-muted-foreground mt-0.5">{dayOfWeek}</span>
                                 )}
                               </div>
                             );
@@ -740,16 +749,16 @@ export function SkillDialog({ open, onOpenChange, skill }: SkillDialogProps) {
             </TabsContent>
           </Tabs>
 
-          <DialogFooter className="mt-6 gap-2">
+          <DialogFooter className="mt-6 gap-2 flex-col sm:flex-row">
             {skill && (
-              <Button type="button" variant="destructive" onClick={handleDelete}>
+              <Button type="button" variant="destructive" onClick={handleDelete} className="w-full sm:w-auto">
                 Delete
               </Button>
             )}
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
               Cancel
             </Button>
-            <Button type="submit">
+            <Button type="submit" className="w-full sm:w-auto">
               {skill ? 'Update' : 'Create'} Skill
             </Button>
           </DialogFooter>

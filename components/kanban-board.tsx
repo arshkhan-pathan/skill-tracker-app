@@ -63,11 +63,11 @@ export function KanbanBoard({ onAddSkill, onEditSkill }: KanbanBoardProps) {
 
   if (!mounted) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {columns.map((column) => (
-          <div key={column.id} className={`${column.color} rounded-lg p-4 min-h-[700px]`}>
-            <h3 className="font-semibold text-lg mb-4 text-gray-900 dark:text-gray-100">{column.title}</h3>
-            <div className="space-y-3 text-gray-900 dark:text-gray-100">Loading...</div>
+          <div key={column.id} className={`${column.color} rounded-lg p-3 sm:p-4 min-h-[400px] sm:min-h-[600px] lg:min-h-[700px]`}>
+            <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4 text-gray-900 dark:text-gray-100">{column.title}</h3>
+            <div className="space-y-2 sm:space-y-3 text-gray-900 dark:text-gray-100">Loading...</div>
           </div>
         ))}
       </div>
@@ -76,12 +76,12 @@ export function KanbanBoard({ onAddSkill, onEditSkill }: KanbanBoardProps) {
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {columns.map((column) => (
-          <div key={column.id} className={`${column.color} rounded-lg p-4 min-h-[700px]`}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100">{column.title}</h3>
-              <Badge variant="secondary">{getSkillsByStatus(column.id).length}</Badge>
+          <div key={column.id} className={`${column.color} rounded-lg p-3 sm:p-4 min-h-[400px] sm:min-h-[600px] lg:min-h-[700px]`}>
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h3 className="font-semibold text-base sm:text-lg text-gray-900 dark:text-gray-100">{column.title}</h3>
+              <Badge variant="secondary" className="text-xs">{getSkillsByStatus(column.id).length}</Badge>
             </div>
 
             <Droppable droppableId={column.id}>
@@ -89,7 +89,7 @@ export function KanbanBoard({ onAddSkill, onEditSkill }: KanbanBoardProps) {
                 <div
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className={`space-y-3 min-h-[600px] transition-colors ${
+                  className={`space-y-2 sm:space-y-3 min-h-[350px] sm:min-h-[550px] lg:min-h-[600px] transition-colors ${
                     snapshot.isDraggingOver ? 'bg-white/50 dark:bg-slate-800/40' : ''
                   }`}
                 >
@@ -108,38 +108,38 @@ export function KanbanBoard({ onAddSkill, onEditSkill }: KanbanBoardProps) {
                             {...provided.dragHandleProps}
                           >
                             <Card
-                              className={`hover:shadow-md transition-shadow ${
+                              className={`hover:shadow-md transition-shadow cursor-pointer ${
                                 snapshot.isDragging ? 'shadow-lg rotate-2' : ''
                               }`}
                             >
-                              <CardHeader className="pb-2 pt-3 px-3">
+                              <CardHeader className="pb-2 pt-2 sm:pt-3 px-2 sm:px-3">
                                 <div className="flex items-start justify-between gap-2">
-                                  <CardTitle className="text-sm line-clamp-1 cursor-pointer" onClick={() => onEditSkill(skill)}>
+                                  <CardTitle className="text-xs sm:text-sm line-clamp-2 cursor-pointer" onClick={() => onEditSkill(skill)}>
                                     {skill.title}
                                   </CardTitle>
                                   {category && (
                                     <Badge
                                       variant="outline"
                                       style={{ borderColor: category.color, color: category.color }}
-                                      className="shrink-0 text-xs"
+                                      className="shrink-0 text-[10px] sm:text-xs py-0 px-1 sm:px-2"
                                     >
                                       {category.name}
                                     </Badge>
                                   )}
                                 </div>
                               </CardHeader>
-                              <CardContent className="space-y-2 pb-3 px-3" onClick={() => onEditSkill(skill)}>
+                              <CardContent className="space-y-1.5 sm:space-y-2 pb-2 sm:pb-3 px-2 sm:px-3" onClick={() => onEditSkill(skill)}>
                                 <div className="space-y-0.5">
-                                  <div className="flex justify-between text-xs text-muted-foreground">
+                                  <div className="flex justify-between text-[10px] sm:text-xs text-muted-foreground">
                                     <span>Progress</span>
                                     <span>{skill.progress}%</span>
                                   </div>
-                                  <Progress value={skill.progress} className="h-1.5" />
+                                  <Progress value={skill.progress} className="h-1 sm:h-1.5" />
                                 </div>
 
                                 {skill.targetDate && (
-                                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                    <Target className="h-3 w-3" />
+                                  <div className="flex items-center gap-1 text-[10px] sm:text-xs text-muted-foreground">
+                                    <Target className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                                     <span>{new Date(skill.targetDate).toLocaleDateString()}</span>
                                   </div>
                                 )}
@@ -147,12 +147,12 @@ export function KanbanBoard({ onAddSkill, onEditSkill }: KanbanBoardProps) {
                                 {skill.tags.length > 0 && (
                                   <div className="flex flex-wrap gap-1">
                                     {skill.tags.slice(0, 2).map((tag, idx) => (
-                                      <Badge key={idx} variant="secondary" className="text-xs py-0 px-1.5">
+                                      <Badge key={idx} variant="secondary" className="text-[10px] sm:text-xs py-0 px-1 sm:px-1.5">
                                         {tag}
                                       </Badge>
                                     ))}
                                     {skill.tags.length > 2 && (
-                                      <Badge variant="secondary" className="text-xs py-0 px-1.5">
+                                      <Badge variant="secondary" className="text-[10px] sm:text-xs py-0 px-1 sm:px-1.5">
                                         +{skill.tags.length - 2}
                                       </Badge>
                                     )}
@@ -165,22 +165,23 @@ export function KanbanBoard({ onAddSkill, onEditSkill }: KanbanBoardProps) {
                                       e.stopPropagation();
                                       toggleDailyProgress(skill.id, todayDate);
                                     }}
-                                    className={`flex items-center gap-1.5 text-xs transition-colors ${
+                                    className={`flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs transition-colors ${
                                       isPracticedToday
                                         ? 'text-green-600 dark:text-green-400 font-medium'
                                         : 'text-muted-foreground hover:text-foreground'
                                     }`}
                                   >
                                     {isPracticedToday ? (
-                                      <CheckCircle2 className="h-4 w-4" />
+                                      <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4" />
                                     ) : (
-                                      <Circle className="h-4 w-4" />
+                                      <Circle className="h-3 w-3 sm:h-4 sm:w-4" />
                                     )}
-                                    <span>{isPracticedToday ? 'Practiced today' : 'Mark as practiced'}</span>
+                                    <span className="hidden sm:inline">{isPracticedToday ? 'Practiced today' : 'Mark as practiced'}</span>
+                                    <span className="sm:hidden">{isPracticedToday ? 'Done' : 'Mark'}</span>
                                   </button>
                                   {currentStreak > 0 && (
-                                    <div className="flex items-center gap-1 text-xs text-orange-600 dark:text-orange-400 font-medium">
-                                      <Flame className="h-3.5 w-3.5" />
+                                    <div className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs text-orange-600 dark:text-orange-400 font-medium">
+                                      <Flame className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                                       <span>{currentStreak}</span>
                                     </div>
                                   )}

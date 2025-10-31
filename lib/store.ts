@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { v4 as uuidv4 } from 'uuid';
 import { Skill, Category, ActivityLog, Todo } from './types';
 import { defaultCategories } from './data/categories';
 
@@ -48,7 +49,7 @@ export const useSkillStore = create<SkillStore>()(
       addSkill: (skillData) => {
         const newSkill: Skill = {
           ...skillData,
-          id: crypto.randomUUID(),
+          id: uuidv4(),
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           dailyProgress: skillData.dailyProgress || [],
@@ -195,7 +196,7 @@ export const useSkillStore = create<SkillStore>()(
       addTodo: (skillId, todoData) => {
         const newTodo: Todo = {
           ...todoData,
-          id: crypto.randomUUID(),
+          id: uuidv4(),
         };
 
         set((state) => ({
@@ -276,7 +277,7 @@ export const useSkillStore = create<SkillStore>()(
       addCategory: (categoryData) => {
         const newCategory: Category = {
           ...categoryData,
-          id: crypto.randomUUID(),
+          id: uuidv4(),
         };
 
         set((state) => ({
@@ -301,7 +302,7 @@ export const useSkillStore = create<SkillStore>()(
       addActivityLog: (logData) => {
         const newLog: ActivityLog = {
           ...logData,
-          id: crypto.randomUUID(),
+          id: uuidv4(),
           timestamp: new Date().toISOString(),
         };
 
