@@ -2,7 +2,6 @@
 
 import { useSkillStore } from '@/lib/store';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import {
   BarChart,
@@ -23,12 +22,15 @@ import {
   Award,
   BookOpen,
   Activity,
+  Flame,
+  Calendar,
+  Clock,
 } from 'lucide-react';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
 
 export function Dashboard() {
-  const { skills, categories, activityLogs } = useSkillStore();
+  const { skills, categories, activityLogs, getStreak, getTotalPracticeDays } = useSkillStore();
 
   const stats = {
     total: skills.length,
@@ -39,6 +41,20 @@ export function Dashboard() {
     avgProgress: skills.length > 0
       ? Math.round(skills.reduce((acc, skill) => acc + skill.progress, 0) / skills.length)
       : 0,
+  };
+
+  // Daily progress stats
+  const getTodayDate = () => new Date().toISOString().split('T')[0];
+  const todayDate = getTodayDate();
+
+  const dailyStats = {
+    practicedToday: skills.filter(skill =>
+      skill.dailyProgress && skill.dailyProgress.some(dp => dp.date === todayDate && dp.practiced)
+    ).length,
+    activeSkills: skills.filter(s => s.status === 'learning' || s.status === 'practiced').length,
+    totalStreaks: skills.reduce((acc, skill) => acc + getStreak(skill.id), 0),
+    maxStreak: Math.max(0, ...skills.map(skill => getStreak(skill.id))),
+    totalPracticeDays: skills.reduce((acc, skill) => acc + getTotalPracticeDays(skill.id), 0),
   };
 
   const statusData = [
@@ -64,7 +80,7 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Total Skills</CardTitle>
@@ -89,15 +105,43 @@ export function Dashboard() {
           </CardContent>
         </Card>
 
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/30 dark:to-green-900/20 border-green-200 dark:border-green-900/30">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-green-900 dark:text-green-300">Practiced Today</CardTitle>
+            <Calendar className="h-4 w-4 text-green-600 dark:text-green-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-700 dark:text-green-400">
+              {dailyStats.practicedToday}/{dailyStats.activeSkills}
+            </div>
+            <p className="text-xs text-green-700 dark:text-green-500 mt-1">
+              Active skills
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/30 dark:to-orange-900/20 border-orange-200 dark:border-orange-900/30">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-orange-900 dark:text-orange-300">Longest Streak</CardTitle>
+            <Flame className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-700 dark:text-orange-400">{dailyStats.maxStreak}</div>
+            <p className="text-xs text-orange-700 dark:text-orange-500 mt-1">
+              days in a row
+            </p>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Mastered</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Practice</CardTitle>
             <Award className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.mastered}</div>
+            <div className="text-2xl font-bold">{dailyStats.totalPracticeDays}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Skills completed
+              days practiced
             </p>
           </CardContent>
         </Card>

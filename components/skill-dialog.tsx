@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSkillStore } from '@/lib/store';
-import { Skill, Milestone, Resource } from '@/lib/types';
+import { Skill, Milestone, Resource, Todo } from '@/lib/types';
 import {
   Dialog,
   DialogContent,
@@ -24,7 +24,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Trash2, Plus, X, CheckCircle } from 'lucide-react';
+import { Trash2, Plus, X, CheckCircle, Flame, Calendar, TrendingUp, Clock, ListTodo, AlertCircle } from 'lucide-react';
 
 interface SkillDialogProps {
   open: boolean;
@@ -33,7 +33,18 @@ interface SkillDialogProps {
 }
 
 export function SkillDialog({ open, onOpenChange, skill }: SkillDialogProps) {
-  const { addSkill, updateSkill, deleteSkill, categories } = useSkillStore();
+  const {
+    addSkill,
+    updateSkill,
+    deleteSkill,
+    categories,
+    getStreak,
+    getTotalPracticeDays,
+    addTodo,
+    toggleTodo,
+    deleteTodo,
+    updateTodo,
+  } = useSkillStore();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -50,6 +61,7 @@ export function SkillDialog({ open, onOpenChange, skill }: SkillDialogProps) {
   const [tagInput, setTagInput] = useState('');
   const [milestoneInput, setMilestoneInput] = useState({ title: '', description: '' });
   const [resourceInput, setResourceInput] = useState({ title: '', url: '', type: 'article' as Resource['type'] });
+  const [todoInput, setTodoInput] = useState({ title: '', priority: 'medium' as Todo['priority'], dueDate: '' });
 
   useEffect(() => {
     if (skill) {
@@ -167,10 +179,12 @@ export function SkillDialog({ open, onOpenChange, skill }: SkillDialogProps) {
 
         <form onSubmit={handleSubmit}>
           <Tabs defaultValue="basic" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="basic">Basic Info</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="basic">Basic</TabsTrigger>
+              <TabsTrigger value="todos">Todos</TabsTrigger>
               <TabsTrigger value="milestones">Milestones</TabsTrigger>
               <TabsTrigger value="resources">Resources</TabsTrigger>
+              <TabsTrigger value="progress">Progress</TabsTrigger>
             </TabsList>
 
             <TabsContent value="basic" className="space-y-4">
@@ -280,6 +294,170 @@ export function SkillDialog({ open, onOpenChange, skill }: SkillDialogProps) {
                   ))}
                 </div>
               </div>
+            </TabsContent>
+
+            <TabsContent value="todos" className="space-y-4">
+              {skill ? (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="todo-title">Add Todo</Label>
+                    <Input
+                      id="todo-title"
+                      placeholder="What needs to be done?"
+                      value={todoInput.title}
+                      onChange={(e) => setTodoInput({ ...todoInput, title: e.target.value })}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          if (todoInput.title.trim()) {
+                            addTodo(skill.id, {
+                              title: todoInput.title,
+                              completed: false,
+                              priority: todoInput.priority,
+                              dueDate: todoInput.dueDate || undefined,
+                            });
+                            setTodoInput({ title: '', priority: 'medium', dueDate: '' });
+                          }
+                        }
+                      }}
+                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      <Select
+                        value={todoInput.priority}
+                        onValueChange={(value) => setTodoInput({ ...todoInput, priority: value as Todo['priority'] })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low Priority</SelectItem>
+                          <SelectItem value="medium">Medium Priority</SelectItem>
+                          <SelectItem value="high">High Priority</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        type="date"
+                        value={todoInput.dueDate}
+                        onChange={(e) => setTodoInput({ ...todoInput, dueDate: e.target.value })}
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        if (todoInput.title.trim()) {
+                          addTodo(skill.id, {
+                            title: todoInput.title,
+                            completed: false,
+                            priority: todoInput.priority,
+                            dueDate: todoInput.dueDate || undefined,
+                          });
+                          setTodoInput({ title: '', priority: 'medium', dueDate: '' });
+                        }
+                      }}
+                      size="sm"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Todo
+                    </Button>
+                  </div>
+
+                  <div className="space-y-2">
+                    {skill.todos && skill.todos.length > 0 ? (
+                      <>
+                        {['high', 'medium', 'low'].map((priority) => {
+                          const todos = (skill.todos || []).filter(t => t.priority === priority && !t.completed);
+                          if (todos.length === 0) return null;
+
+                          return (
+                            <div key={priority} className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <AlertCircle className={`h-4 w-4 ${
+                                  priority === 'high' ? 'text-red-500' :
+                                  priority === 'medium' ? 'text-yellow-500' :
+                                  'text-gray-400'
+                                }`} />
+                                <span className="text-sm font-medium capitalize">{priority} Priority</span>
+                              </div>
+                              {todos.map((todo) => (
+                                <div
+                                  key={todo.id}
+                                  className="flex items-start gap-3 p-3 border rounded-lg"
+                                >
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleTodo(skill.id, todo.id)}
+                                    className="mt-1"
+                                  >
+                                    {todo.completed ? (
+                                      <CheckCircle className="h-5 w-5 text-green-500 fill-green-500" />
+                                    ) : (
+                                      <div className="h-5 w-5 border-2 rounded-full" />
+                                    )}
+                                  </button>
+                                  <div className="flex-1">
+                                    <p className={`font-medium ${todo.completed ? 'line-through text-muted-foreground' : ''}`}>
+                                      {todo.title}
+                                    </p>
+                                    {todo.dueDate && (
+                                      <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                                        <Calendar className="h-3 w-3" />
+                                        {new Date(todo.dueDate).toLocaleDateString()}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => deleteTodo(skill.id, todo.id)}
+                                    className="text-destructive hover:text-destructive/80"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })}
+
+                        {(skill.todos || []).filter(t => t.completed).length > 0 && (
+                          <div className="space-y-2">
+                            <span className="text-sm font-medium text-muted-foreground">Completed</span>
+                            {(skill.todos || []).filter(t => t.completed).map((todo) => (
+                              <div
+                                key={todo.id}
+                                className="flex items-start gap-3 p-3 border rounded-lg bg-muted/50"
+                              >
+                                <CheckCircle className="h-5 w-5 text-green-500 fill-green-500 mt-1" />
+                                <div className="flex-1">
+                                  <p className="font-medium line-through text-muted-foreground">
+                                    {todo.title}
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => deleteTodo(skill.id, todo.id)}
+                                  className="text-destructive hover:text-destructive/80"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        No todos yet. Add tasks to track what needs to be done!
+                      </p>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-sm text-muted-foreground">
+                    Create the skill to start adding todos
+                  </p>
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="milestones" className="space-y-4">
@@ -414,6 +592,151 @@ export function SkillDialog({ open, onOpenChange, skill }: SkillDialogProps) {
                   </p>
                 )}
               </div>
+            </TabsContent>
+
+            <TabsContent value="progress" className="space-y-4">
+              {skill ? (
+                <>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="p-4 border rounded-lg bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/30 dark:to-orange-900/20 dark:border-orange-900/30">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Flame className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                        <span className="text-sm font-medium text-orange-900 dark:text-orange-300">Current Streak</span>
+                      </div>
+                      <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">{getStreak(skill.id)}</p>
+                      <p className="text-xs text-orange-700 dark:text-orange-500 mt-1">days in a row</p>
+                    </div>
+
+                    <div className="p-4 border rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20 dark:border-blue-900/30">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        <span className="text-sm font-medium text-blue-900 dark:text-blue-300">Total Days</span>
+                      </div>
+                      <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{getTotalPracticeDays(skill.id)}</p>
+                      <p className="text-xs text-blue-700 dark:text-blue-500 mt-1">days practiced</p>
+                    </div>
+
+                    <div className="p-4 border rounded-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/30 dark:to-green-900/20 dark:border-green-900/30">
+                      <div className="flex items-center gap-2 mb-1">
+                        <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        <span className="text-sm font-medium text-green-900 dark:text-green-300">This Week</span>
+                      </div>
+                      <p className="text-3xl font-bold text-green-600 dark:text-green-400">
+                        {(() => {
+                          if (!skill.dailyProgress) return 0;
+                          const today = new Date();
+                          const weekAgo = new Date(today);
+                          weekAgo.setDate(today.getDate() - 7);
+                          return skill.dailyProgress.filter(dp => {
+                            const dpDate = new Date(dp.date);
+                            return dp.practiced && dpDate >= weekAgo && dpDate <= today;
+                          }).length;
+                        })()}
+                      </p>
+                      <p className="text-xs text-green-700 dark:text-green-500 mt-1">days this week</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Recent Activity (Last 30 Days)</Label>
+                    <div className="border rounded-lg p-4">
+                      <div className="grid grid-cols-7 gap-1.5">
+                        {(() => {
+                          const days = [];
+                          const today = new Date();
+                          for (let i = 29; i >= 0; i--) {
+                            const date = new Date(today);
+                            date.setDate(today.getDate() - i);
+                            const dateStr = date.toISOString().split('T')[0];
+                            const practiced = skill.dailyProgress && skill.dailyProgress.some(dp => dp.date === dateStr && dp.practiced);
+                            const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 1);
+                            const dayOfMonth = date.getDate();
+
+                            days.push(
+                              <div key={dateStr} className="flex flex-col items-center">
+                                <div
+                                  className={`w-8 h-8 rounded-md flex items-center justify-center text-xs transition-colors ${
+                                    practiced
+                                      ? 'bg-green-500 dark:bg-green-600 text-white font-medium'
+                                      : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600'
+                                  }`}
+                                  title={`${dateStr}${practiced ? ' - Practiced' : ''}`}
+                                >
+                                  {dayOfMonth}
+                                </div>
+                                {i % 7 === 6 && (
+                                  <span className="text-[10px] text-muted-foreground mt-0.5">{dayOfWeek}</span>
+                                )}
+                              </div>
+                            );
+                          }
+                          return days;
+                        })()}
+                      </div>
+                      <div className="flex items-center gap-4 mt-4 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-3 h-3 rounded bg-gray-100 dark:bg-gray-800"></div>
+                          <span>Not practiced</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-3 h-3 rounded bg-green-500 dark:bg-green-600"></div>
+                          <span>Practiced</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {skill.dailyProgress && skill.dailyProgress.length > 0 && (
+                    <div className="space-y-2">
+                      <Label>Progress History</Label>
+                      <div className="border rounded-lg max-h-60 overflow-y-auto">
+                        {skill.dailyProgress
+                          .filter(dp => dp.practiced)
+                          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                          .slice(0, 10)
+                          .map((dp) => (
+                            <div
+                              key={dp.date}
+                              className="p-3 border-b last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <CheckCircle className="h-4 w-4 text-green-500" />
+                                  <span className="font-medium">
+                                    {new Date(dp.date).toLocaleDateString('en-US', {
+                                      weekday: 'short',
+                                      month: 'short',
+                                      day: 'numeric',
+                                      year: 'numeric',
+                                    })}
+                                  </span>
+                                </div>
+                              </div>
+                              {dp.notes && (
+                                <p className="text-sm text-muted-foreground mt-1 ml-6">{dp.notes}</p>
+                              )}
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {(!skill.dailyProgress || skill.dailyProgress.filter(dp => dp.practiced).length === 0) && (
+                    <div className="text-center py-8">
+                      <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+                      <p className="text-sm text-muted-foreground">
+                        No practice recorded yet. Start tracking your daily progress!
+                      </p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-sm text-muted-foreground">
+                    Create the skill to start tracking daily progress
+                  </p>
+                </div>
+              )}
             </TabsContent>
           </Tabs>
 

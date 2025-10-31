@@ -1,3 +1,18 @@
+export interface DailyProgress {
+  date: string; // ISO date string (YYYY-MM-DD)
+  practiced: boolean;
+  notes?: string;
+}
+
+export interface Todo {
+  id: string;
+  title: string;
+  completed: boolean;
+  completedAt?: string;
+  priority: 'low' | 'medium' | 'high';
+  dueDate?: string;
+}
+
 export interface Skill {
   id: string;
   title: string;
@@ -11,6 +26,8 @@ export interface Skill {
   tags: string[];
   resources: Resource[];
   targetDate?: string;
+  dailyProgress: DailyProgress[];
+  todos: Todo[];
 }
 
 export interface Milestone {
@@ -39,7 +56,7 @@ export interface Category {
 export interface ActivityLog {
   id: string;
   skillId: string;
-  action: 'created' | 'updated' | 'milestone_completed' | 'status_changed';
+  action: 'created' | 'updated' | 'milestone_completed' | 'status_changed' | 'daily_checkin' | 'todo_completed';
   description: string;
   timestamp: string;
 }

@@ -3,13 +3,15 @@
 import { useState } from 'react';
 import { KanbanBoard } from '@/components/kanban-board';
 import { Dashboard } from '@/components/dashboard';
+import { TodosView } from '@/components/todos-view';
 import { SkillDialog } from '@/components/skill-dialog';
 import { SampleDataSeeder } from '@/components/sample-data-seeder';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { ThemeVariantSwitcher } from '@/components/theme-variant-switcher';
 import { Skill } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, LayoutDashboard, KanbanSquare, List } from 'lucide-react';
+import { Plus, LayoutDashboard, KanbanSquare, List, ListTodo } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
@@ -27,7 +29,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-black dark:via-gray-950 dark:to-black">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -41,6 +43,7 @@ export default function Home() {
               </p>
             </div>
             <div className="flex items-center gap-2">
+              <ThemeVariantSwitcher />
               <ThemeToggle />
               <Button onClick={handleAddSkill} size="lg" className="gap-2">
                 <Plus className="h-5 w-5" />
@@ -56,10 +59,14 @@ export default function Home() {
         {/* Main Content */}
         <Tabs defaultValue="kanban" className="space-y-6">
           <div className="flex items-center justify-between">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsList className="grid w-full max-w-2xl grid-cols-3">
               <TabsTrigger value="kanban" className="gap-2">
                 <KanbanSquare className="h-4 w-4" />
                 Kanban Board
+              </TabsTrigger>
+              <TabsTrigger value="todos" className="gap-2">
+                <ListTodo className="h-4 w-4" />
+                Todos
               </TabsTrigger>
               <TabsTrigger value="dashboard" className="gap-2">
                 <LayoutDashboard className="h-4 w-4" />
@@ -76,6 +83,10 @@ export default function Home() {
 
           <TabsContent value="kanban" className="space-y-4">
             <KanbanBoard onAddSkill={handleAddSkill} onEditSkill={handleEditSkill} />
+          </TabsContent>
+
+          <TabsContent value="todos" className="space-y-4">
+            <TodosView />
           </TabsContent>
 
           <TabsContent value="dashboard" className="space-y-4">

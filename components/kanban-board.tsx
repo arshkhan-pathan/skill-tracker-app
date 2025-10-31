@@ -7,7 +7,7 @@ import { Skill } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Target, Plus } from 'lucide-react';
+import { Target, Plus, CheckCircle2, Circle, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface KanbanColumn {
@@ -17,10 +17,9 @@ interface KanbanColumn {
 }
 
 const columns: KanbanColumn[] = [
-  { id: 'to-learn', title: 'To Learn', color: 'bg-gray-100' },
-  { id: 'learning', title: 'Learning', color: 'bg-blue-100' },
-  { id: 'practiced', title: 'Practiced', color: 'bg-yellow-100' },
-  { id: 'mastered', title: 'Mastered', color: 'bg-green-100' },
+  { id: 'to-learn', title: 'To Learn', color: 'bg-slate-100 dark:bg-slate-900/50 dark:border dark:border-slate-800/50' },
+  { id: 'learning', title: 'Learning', color: 'bg-blue-50 dark:bg-blue-950/30 dark:border dark:border-blue-900/50' },
+  { id: 'practiced', title: 'Practiced', color: 'bg-amber-50 dark:bg-amber-950/20 dark:border dark:border-amber-900/40' },
 ];
 
 interface KanbanBoardProps {
@@ -30,7 +29,12 @@ interface KanbanBoardProps {
 
 export function KanbanBoard({ onAddSkill, onEditSkill }: KanbanBoardProps) {
   const [mounted, setMounted] = useState(false);
-  const { skills, updateSkill, categories } = useSkillStore();
+  const { skills, updateSkill, categories, toggleDailyProgress, getDailyProgressForDate, getStreak } = useSkillStore();
+
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -59,11 +63,11 @@ export function KanbanBoard({ onAddSkill, onEditSkill }: KanbanBoardProps) {
 
   if (!mounted) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {columns.map((column) => (
           <div key={column.id} className={`${column.color} rounded-lg p-4 min-h-[700px]`}>
-            <h3 className="font-semibold text-lg mb-4">{column.title}</h3>
-            <div className="space-y-3">Loading...</div>
+            <h3 className="font-semibold text-lg mb-4 text-gray-900 dark:text-gray-100">{column.title}</h3>
+            <div className="space-y-3 text-gray-900 dark:text-gray-100">Loading...</div>
           </div>
         ))}
       </div>
@@ -72,11 +76,11 @@ export function KanbanBoard({ onAddSkill, onEditSkill }: KanbanBoardProps) {
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {columns.map((column) => (
           <div key={column.id} className={`${column.color} rounded-lg p-4 min-h-[700px]`}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-lg">{column.title}</h3>
+              <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100">{column.title}</h3>
               <Badge variant="secondary">{getSkillsByStatus(column.id).length}</Badge>
             </div>
 
@@ -86,11 +90,15 @@ export function KanbanBoard({ onAddSkill, onEditSkill }: KanbanBoardProps) {
                   ref={provided.innerRef}
                   {...provided.droppableProps}
                   className={`space-y-3 min-h-[600px] transition-colors ${
-                    snapshot.isDraggingOver ? 'bg-white/50' : ''
+                    snapshot.isDraggingOver ? 'bg-white/50 dark:bg-slate-800/40' : ''
                   }`}
                 >
                   {getSkillsByStatus(column.id).map((skill, index) => {
                     const category = getCategoryById(skill.category);
+                    const todayDate = getTodayDate();
+                    const isPracticedToday = getDailyProgressForDate(skill.id, todayDate);
+                    const currentStreak = getStreak(skill.id);
+
                     return (
                       <Draggable key={skill.id} draggableId={skill.id} index={index}>
                         {(provided, snapshot) => (
@@ -100,14 +108,13 @@ export function KanbanBoard({ onAddSkill, onEditSkill }: KanbanBoardProps) {
                             {...provided.dragHandleProps}
                           >
                             <Card
-                              className={`cursor-pointer hover:shadow-md transition-shadow ${
+                              className={`hover:shadow-md transition-shadow ${
                                 snapshot.isDragging ? 'shadow-lg rotate-2' : ''
                               }`}
-                              onClick={() => onEditSkill(skill)}
                             >
                               <CardHeader className="pb-2 pt-3 px-3">
                                 <div className="flex items-start justify-between gap-2">
-                                  <CardTitle className="text-sm line-clamp-1">
+                                  <CardTitle className="text-sm line-clamp-1 cursor-pointer" onClick={() => onEditSkill(skill)}>
                                     {skill.title}
                                   </CardTitle>
                                   {category && (
@@ -121,7 +128,7 @@ export function KanbanBoard({ onAddSkill, onEditSkill }: KanbanBoardProps) {
                                   )}
                                 </div>
                               </CardHeader>
-                              <CardContent className="space-y-2 pb-3 px-3">
+                              <CardContent className="space-y-2 pb-3 px-3" onClick={() => onEditSkill(skill)}>
                                 <div className="space-y-0.5">
                                   <div className="flex justify-between text-xs text-muted-foreground">
                                     <span>Progress</span>
@@ -151,6 +158,33 @@ export function KanbanBoard({ onAddSkill, onEditSkill }: KanbanBoardProps) {
                                     )}
                                   </div>
                                 )}
+
+                                <div className="pt-1 border-t flex items-center justify-between">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggleDailyProgress(skill.id, todayDate);
+                                    }}
+                                    className={`flex items-center gap-1.5 text-xs transition-colors ${
+                                      isPracticedToday
+                                        ? 'text-green-600 dark:text-green-400 font-medium'
+                                        : 'text-muted-foreground hover:text-foreground'
+                                    }`}
+                                  >
+                                    {isPracticedToday ? (
+                                      <CheckCircle2 className="h-4 w-4" />
+                                    ) : (
+                                      <Circle className="h-4 w-4" />
+                                    )}
+                                    <span>{isPracticedToday ? 'Practiced today' : 'Mark as practiced'}</span>
+                                  </button>
+                                  {currentStreak > 0 && (
+                                    <div className="flex items-center gap-1 text-xs text-orange-600 dark:text-orange-400 font-medium">
+                                      <Flame className="h-3.5 w-3.5" />
+                                      <span>{currentStreak}</span>
+                                    </div>
+                                  )}
+                                </div>
                               </CardContent>
                             </Card>
                           </div>
