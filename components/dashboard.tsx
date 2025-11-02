@@ -24,7 +24,6 @@ import {
   Activity,
   Flame,
   Calendar,
-  Clock,
 } from 'lucide-react';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'];

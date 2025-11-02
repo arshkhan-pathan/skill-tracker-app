@@ -25,7 +25,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Trash2, Plus, X, CheckCircle, Flame, Calendar, TrendingUp, Clock, ListTodo, AlertCircle } from 'lucide-react';
+import { Trash2, Plus, X, CheckCircle, Flame, Calendar, TrendingUp, AlertCircle } from 'lucide-react';
 
 interface SkillDialogProps {
   open: boolean;
@@ -64,31 +64,34 @@ export function SkillDialog({ open, onOpenChange, skill }: SkillDialogProps) {
   const [todoInput, setTodoInput] = useState({ title: '', priority: 'medium' as Todo['priority'], dueDate: '' });
 
   useEffect(() => {
-    if (skill) {
-      setFormData({
-        title: skill.title,
-        description: skill.description,
-        category: skill.category,
-        status: skill.status,
-        progress: skill.progress,
-        targetDate: skill.targetDate || '',
-        tags: skill.tags,
-        milestones: skill.milestones,
-        resources: skill.resources,
-      });
-    } else {
-      setFormData({
-        title: '',
-        description: '',
-        category: categories[0]?.id || '',
-        status: 'to-learn',
-        progress: 0,
-        targetDate: '',
-        tags: [],
-        milestones: [],
-        resources: [],
-      });
-    }
+    // Use a microtask to batch state updates and avoid synchronous setState
+    Promise.resolve().then(() => {
+      if (skill) {
+        setFormData({
+          title: skill.title,
+          description: skill.description,
+          category: skill.category,
+          status: skill.status,
+          progress: skill.progress,
+          targetDate: skill.targetDate || '',
+          tags: skill.tags,
+          milestones: skill.milestones,
+          resources: skill.resources,
+        });
+      } else {
+        setFormData({
+          title: '',
+          description: '',
+          category: categories[0]?.id || '',
+          status: 'to-learn',
+          progress: 0,
+          targetDate: '',
+          tags: [],
+          milestones: [],
+          resources: [],
+        });
+      }
+    });
   }, [skill, open, categories]);
 
   const handleSubmit = (e: React.FormEvent) => {

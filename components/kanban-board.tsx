@@ -17,9 +17,9 @@ interface KanbanColumn {
 }
 
 const columns: KanbanColumn[] = [
-  { id: 'to-learn', title: 'To Learn', color: 'bg-slate-100 dark:bg-slate-900/50 dark:border dark:border-slate-800/50' },
-  { id: 'learning', title: 'Learning', color: 'bg-blue-50 dark:bg-blue-950/30 dark:border dark:border-blue-900/50' },
-  { id: 'practiced', title: 'Practiced', color: 'bg-amber-50 dark:bg-amber-950/20 dark:border dark:border-amber-900/40' },
+  { id: 'to-learn', title: 'To Learn', color: 'bg-slate-100/40 backdrop-blur-md border border-slate-200/30 dark:bg-slate-900/50 dark:border-slate-800/50' },
+  { id: 'learning', title: 'Learning', color: 'bg-blue-50/40 backdrop-blur-md border border-blue-200/30 dark:bg-blue-950/30 dark:border-blue-900/50' },
+  { id: 'practiced', title: 'Practiced', color: 'bg-amber-50/40 backdrop-blur-md border border-amber-200/30 dark:bg-amber-950/20 dark:border-amber-900/40' },
 ];
 
 interface KanbanBoardProps {
@@ -37,7 +37,8 @@ export function KanbanBoard({ onAddSkill, onEditSkill }: KanbanBoardProps) {
   };
 
   useEffect(() => {
-    setMounted(true);
+    // Use a microtask to avoid synchronous setState
+    Promise.resolve().then(() => setMounted(true));
   }, []);
 
   const handleDragEnd = (result: DropResult) => {

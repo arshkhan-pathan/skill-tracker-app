@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useSkillStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
@@ -141,12 +141,6 @@ export function SampleDataSeeder() {
   const { skills, addSkill } = useSkillStore();
   const [seeded, setSeeded] = useState(false);
 
-  useEffect(() => {
-    if (skills.length > 0) {
-      setSeeded(true);
-    }
-  }, [skills]);
-
   const loadSampleData = () => {
     sampleSkills.forEach((skill) => {
       addSkill(skill);
@@ -154,6 +148,7 @@ export function SampleDataSeeder() {
     setSeeded(true);
   };
 
+  // Don't show if already seeded or if skills exist
   if (seeded || skills.length > 0) {
     return null;
   }

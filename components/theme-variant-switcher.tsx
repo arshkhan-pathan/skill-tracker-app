@@ -24,20 +24,23 @@ export function ThemeVariantSwitcher() {
   const [mounted, setMounted] = React.useState(false);
   const [variant, setVariant] = React.useState<string>('variant-1');
 
-  React.useEffect(() => {
-    setMounted(true);
-    const savedVariant = localStorage.getItem('theme-variant') || 'variant-5';
-    setVariant(savedVariant);
-    updateDocumentVariant(savedVariant);
-  }, []);
-
-  const updateDocumentVariant = (newVariant: string) => {
+  const updateDocumentVariant = React.useCallback((newVariant: string) => {
     const html = document.documentElement;
     // Remove all variant classes
     variants.forEach(v => html.classList.remove(v.value));
     // Add new variant class
     html.classList.add(newVariant);
-  };
+  }, []);
+
+  React.useEffect(() => {
+    // Use a microtask to avoid synchronous setState
+    Promise.resolve().then(() => {
+      setMounted(true);
+      const savedVariant = localStorage.getItem('theme-variant') || 'variant-5';
+      setVariant(savedVariant);
+      updateDocumentVariant(savedVariant);
+    });
+  }, [updateDocumentVariant]);
 
   const handleVariantChange = (newVariant: string) => {
     setVariant(newVariant);
@@ -48,8 +51,6 @@ export function ThemeVariantSwitcher() {
   if (!mounted) {
     return null;
   }
-
-  const currentVariant = variants.find(v => v.value === variant);
 
   return (
     <DropdownMenu>

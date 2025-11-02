@@ -159,7 +159,7 @@ export const useSkillStore = create<SkillStore>()(
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
 
-        let currentDate = sortedDates[0];
+        const currentDate = sortedDates[0];
         currentDate.setHours(0, 0, 0, 0);
 
         if (currentDate.getTime() !== today.getTime() && currentDate.getTime() !== yesterday.getTime()) {
