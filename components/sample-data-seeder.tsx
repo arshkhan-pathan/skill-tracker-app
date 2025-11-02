@@ -38,6 +38,8 @@ const sampleSkills = [
         type: 'article' as const,
       },
     ],
+    dailyProgress: [],
+    todos: [],
   },
   {
     title: 'React Hooks',
@@ -62,6 +64,8 @@ const sampleSkills = [
       },
     ],
     resources: [],
+    dailyProgress: [],
+    todos: [],
   },
   {
     title: 'Python Machine Learning',
@@ -81,6 +85,8 @@ const sampleSkills = [
       },
     ],
     resources: [],
+    dailyProgress: [],
+    todos: [],
   },
   {
     title: 'Docker & Kubernetes',
@@ -99,6 +105,8 @@ const sampleSkills = [
         type: 'article' as const,
       },
     ],
+    dailyProgress: [],
+    todos: [],
   },
   {
     title: 'UI/UX Design Principles',
@@ -110,6 +118,8 @@ const sampleSkills = [
     tags: ['design', 'ux', 'ui'],
     milestones: [],
     resources: [],
+    dailyProgress: [],
+    todos: [],
   },
   {
     title: 'Git Advanced Workflows',
@@ -134,6 +144,8 @@ const sampleSkills = [
       },
     ],
     resources: [],
+    dailyProgress: [],
+    todos: [],
   },
 ];
 

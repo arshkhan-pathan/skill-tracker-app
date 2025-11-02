@@ -56,6 +56,8 @@ export function SkillDialog({ open, onOpenChange, skill }: SkillDialogProps) {
     tags: [] as string[],
     milestones: [] as Milestone[],
     resources: [] as Resource[],
+    dailyProgress: [] as Skill['dailyProgress'],
+    todos: [] as Todo[],
   });
 
   const [tagInput, setTagInput] = useState('');
@@ -77,6 +79,8 @@ export function SkillDialog({ open, onOpenChange, skill }: SkillDialogProps) {
           tags: skill.tags,
           milestones: skill.milestones,
           resources: skill.resources,
+          dailyProgress: skill.dailyProgress,
+          todos: skill.todos,
         });
       } else {
         setFormData({
@@ -89,6 +93,8 @@ export function SkillDialog({ open, onOpenChange, skill }: SkillDialogProps) {
           tags: [],
           milestones: [],
           resources: [],
+          dailyProgress: [],
+          todos: [],
         });
       }
     });
